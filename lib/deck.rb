@@ -1,5 +1,3 @@
-require_relative 'card'
-
 class Deck
 
   attr_reader :cards
@@ -22,13 +20,3 @@ class Deck
   end
 end
 
-describe Deck do
-
-  it "should build 52 cards" do
-    Deck.build_cards.length.should eq(52)
-  end
-
-  it "should have 52 cards when new deck" do
-    Deck.new.cards.length.should eq(52)
-  end
-end

@@ -1,5 +1,6 @@
-
 class Game
+
+  attr_reader :player_hand, :dealer_hand
 
   def initialize
     @deck = Deck.new
@@ -9,12 +10,12 @@ class Game
     2.times { @dealer_hand.hit!(@deck) }
   end
 
+  def status
+    {:player_cards => @player_hand.cards,
+     :player_value => @player_hand.value,
+     :dealer_cards => @dealer_hand.cards,
+     :dealer_value => @dealer_hand.value}
+  end
+
 end
 
-describe Game do
-  it "should have a players hand" do
-    Game.new.players_hand.cards.length.should eq(2)
-  end
-  it "should have a dealers hand"
-  it "should have a status"
-end
