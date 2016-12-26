@@ -1,3 +1,5 @@
+require 'rspec'
+
 class Card
 
   attr_reader :suit, :value
