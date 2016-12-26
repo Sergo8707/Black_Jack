@@ -1,5 +1,4 @@
 class Card
-
   attr_reader :suit, :value
 
   def initialize(suit, value)
@@ -8,9 +7,9 @@ class Card
   end
 
   def value
-    return 10 if ["J", "Q", "K"].include?(@value)
-    return 11 if @value == "A"
-    return @value
+    return 10 if %w(J Q K).include?(@value)
+    return 11 if @value == 'A'
+    @value
   end
 
   def to_s

@@ -6,14 +6,17 @@ class Hand
   end
 
   def hit!(deck)
-    @cards << deck.cards.pop
+    @cards << deck.cards.shift
   end
 
   def value
-    value = 0
-    cards.each do |card|
-      value += card.value
+    cards.inject(0) { |sum, card| sum += card.value }
+  end
+
+  def play_as_dealer(deck)
+    if value < 16
+      hit!(deck)
+      play_as_dealer(deck)
     end
-    value
   end
 end
