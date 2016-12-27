@@ -1,3 +1,4 @@
-require_relative 'lib/card'
-require_relative 'lib/player'
-require_relative 'lib/main'
+require './lib/game'
+
+game = Game.new
+game.new_game

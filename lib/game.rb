@@ -1,45 +1,106 @@
+require_relative 'bank'
+require_relative 'deck'
+require_relative 'player'
+
 class Game
-  attr_reader :player_hand, :dealer_hand
+  attr_accessor :player, :dealer, :deck, :bank
 
   def initialize
+    @bank = Bank.new
     @deck = Deck.new
-    @player_hand = Hand.new
-    @dealer_hand = Hand.new
-    2.times { @player_hand.hit!(@deck) }
-    2.times { @dealer_hand.hit!(@deck) }
+    @player = Player.new('Dealer', 100)
+    @dealer = Player.new('Дилер', 100)
   end
 
-  def hit
-    @player_hand.hit!(@deck)
-  end
+  def new_game
+    puts 'Как Вас зовут?'
+    player.name = gets.chomp
 
-  def stand
-    @dealer_hand.play_as_dealer(@deck)
-    @winner = determine_winner(@player_hand.value, @dealer_hand.value)
-  end
-
-  def status
-    { player_cards: @player_hand.cards,
-      player_value: @player_hand.value,
-      dealer_cards: @dealer_hand.cards,
-      dealer_value: @dealer_hand.value,
-      winner: @winner }
-  end
-
-  def determine_winner(player_value, dealer_value)
-    return :dealer if player_value > 21
-
-    return :player if dealer_value > 21
-    if player_value == dealer_value
-      :push
-    elsif player_value > dealer_value
-      :player
-    else
-      :dealer
+    loop do
+      puts "#{player.name}, сыграем в Black Jack?"
+      puts 'Да - 1  Нет - 2'
+      puts ''
+      choice = gets.chomp.to_i
+      case choice
+      when 1
+        break unless player.money > 0 && dealer.money > 0
+        beginning_game
+        player_choice = player_menu
+        case player_choice
+        when 1
+          dealer_turn
+        when 2
+          player_turn
+        when 3
+          open_cards
+          determine_winner
+        end
+      when 2
+        break
+      else
+        puts "#{player.name}, сыграем ещё в Black Jack?"
+        puts 'Да - 1  Нет - 2'
+      end
     end
   end
 
-  def inspect
-    status
+  private
+
+  def beginning_game
+    restart_game
+    2.times { player.hit(@deck) }
+    2.times { dealer.hit(@deck) }
+    bank.push(player.rate(10))
+    bank.push(dealer.rate(10))
+    player.show_cards
+    dealer.show_cards
+  end
+
+  def player_menu
+    puts ''
+    puts '1. Пропустить'
+    puts '2. Добавить карту' if player.total_cards < 3
+    puts '3. Открыть карты'
+    gets.chomp.to_i
+  end
+
+  def player_turn
+    player.hit(@deck) if player.total_cards < 3
+    open_cards
+    determine_winner
+  end
+
+  def dealer_turn
+    dealer.hit(@deck) if dealer.points <= 18 && dealer.total_cards < 3
+    open_cards
+    determine_winner
+  end
+
+  def open_cards
+    puts "#{player.name} cards: #{player.cards * ' '}"
+    puts "#{dealer.name} cards: #{dealer.cards * ' '}"
+    puts "#{player.name} points is: #{player.points}"
+    puts "#{dealer.name} points is: #{dealer.points}"
+  end
+
+  def determine_winner
+    if dealer.busted? || player.ochko?
+      puts "Поздравляю #{player.name}, Вы выиграли!"
+      dealer.win(bank.pop_all)
+    elsif player.busted? || dealer.ochko?
+      puts 'Вы проиграли'
+      player.win(bank.pop_all)
+    else
+      puts 'Попробуйте ещё раз.'
+      bet = bank.pop_all / 2
+      player.win(bet)
+      dealer.win(bet)
+    end
+  end
+
+  def restart_game
+    @deck = Deck.new
+    player.cards = []
+    dealer.cards = []
   end
 end
